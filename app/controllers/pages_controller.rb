@@ -1,19 +1,11 @@
 class PagesController < ApplicationController
   def index
-    html = index_html
-    render text: FogConnection.new
-  end
-
-  def index_html
-    fog_connection.index_for_key(index_key)
-  end
-
-  def index_key
-    if params['rev']
-      "index.html:#{params['rev']}"
-    else
-      'index.html'
-    end
+    index_key = if params['rev']
+                  "index.html:#{params['rev']}"
+                else
+                  'index.html'
+                end
+    render text: FogConnection.new.index_for_key(index_key)
   end
 
   class FogConnection
@@ -21,11 +13,9 @@ class PagesController < ApplicationController
 
     def initialize
       @storage = Fog::Storage.new({
-        provider: ENV['FOG_PROVIDER'],
-        local_root: ENV['FOG_LOCAL_ROOT'],
+        provider: 'aws',
         aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-        aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
-        endpoint: ENV['FOG_LOCAL_ROOT']
+        aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
       })
     end
 
